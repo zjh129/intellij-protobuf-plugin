@@ -1,0 +1,85 @@
+---
+description: 源码结构与代码规范
+globs: src/main/kotlin/**/*.kt
+alwaysApply: false
+---
+
+# 源码规范
+
+## 包结构
+
+```
+io.kanro.idea.plugin.protobuf/
+├── aip/               # Google API 改进提案（AIP）支持
+├── compile/           # Protobuf 编译器插件
+├── decompile/         # Go proto 反编译
+├── golang/            # Go 语言集成
+├── grpc/              # gRPC 支持（请求、边栏、索引）
+├── java/              # Java 集成
+├── lang/              # 核心语言功能
+│   ├── annotator/     # 语法检查
+│   ├── completion/    # 代码补全
+│   ├── docs/          # 文档
+│   ├── formatter/     # 代码格式化
+│   ├── highlight/     # 语法高亮
+│   ├── psi/           # PSI 元素（proto/、text/）
+│   ├── quickfix/      # 快速修复
+│   ├── reference/     # 符号引用
+│   ├── root/          # 根目录提供者
+│   └── util/          # 工具类
+├── microservices/     # 微服务端点
+├── sisyphus/          # Sisyphus 框架支持
+└── ui/                # UI 工具
+```
+
+## 双 PSI 架构
+
+本插件维护两套并行的 PSI 树：
+- **`lang/psi/proto/`** — 完整 Protobuf 语法（`.proto` 文件）
+- **`lang/psi/text/`** — 文本格式（`.textproto` 文件）
+
+每套都有独立的：词法分析器、语法分析器、元素接口、实现、引用。
+
+## 命名规范
+
+| 类型 | 模式 | 示例 |
+|------|------|------|
+| 元素接口 | `Protobuf*Element` | `ProtobufFieldElement` |
+| 元素实现 | `Protobuf*Impl` | `ProtobufFieldImpl` |
+| Mixin | `Protobuf*Mixin` | `ProtobufFieldMixin` |
+| Stub 实现 | `Protobuf*Stub` | `ProtobufFieldStub` |
+| Stub 类型 | `Protobuf*StubType` | `ProtobufFieldStubType` |
+| 引用 | `Protobuf*Reference` | `ProtobufTypeNameReference` |
+| 索引 | `*Index` | `ProtobufSymbolIndex` |
+| 注解器 | `*Annotator` | `ProtobufAnnotator` |
+| 快速修复 | `*Fix` | `AddResourceImportFix` |
+
+## 可选模块依赖
+
+需要的插件必须在两处同时声明：
+1. `gradle.properties` → `platformPlugins`
+2. `src/main/resources/META-INF/plugin.xml` → `<depends optional="true">`
+
+当前可选依赖：
+- `com.intellij.modules.java` → Java 支持
+- `org.jetbrains.kotlin` → Kotlin / Sisyphus 支持
+- `com.intellij.modules.microservices` → 微服务
+- `com.jetbrains.restClient` → REST Client（gRPC 请求必需）
+- `org.jetbrains.plugins.go` → Go 语言
+- `org.intellij.plugins.markdown` → Markdown 注入
+
+## 禁用冲突插件
+
+在 `build.gradle.kts` 的 `prepareSandbox` 任务中禁用了：
+- `idea.plugin.protoeditor` — IntelliJ 内置的 protobuf 插件
+- `com.intellij.grpc` — IntelliJ 内置的 gRPC 插件
+
+## 代码生成
+
+语法文件位于 `src/main/grammar/`：
+- `protobuf.bnf` / `protobuf.flex` → 主 Protobuf 解析器/词法分析器
+- `prototext.bnf` / `prototext.flex` → 文本格式解析器/词法分析器
+
+生成文件输出到 `build/generated/sources/grammar/`。
+
+`compileKotlin` 任务依赖全部四个语法生成任务。

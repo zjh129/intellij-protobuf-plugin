@@ -18,6 +18,10 @@ class ProtobufCodeStyleSettingsProvider : CodeStyleSettingsProvider() {
         return "Protobuf"
     }
 
+    override fun getLanguage(): ProtobufLanguage {
+        return ProtobufLanguage
+    }
+
     override fun createConfigurable(
         settings: CodeStyleSettings,
         modelSettings: CodeStyleSettings,

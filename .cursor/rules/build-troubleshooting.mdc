@@ -1,0 +1,62 @@
+---
+description: Gradle 构建故障排查指南
+alwaysApply: false
+---
+
+# Gradle 构建故障排查
+
+## Java / Daemon 问题
+
+### `NoSuchFieldError: IBM_SEMERU` 或 `ClosedFileSystemException`
+**原因**：Gradle 配置缓存 + Foojay toolchain 会缓存 JVM 特定的类常量。陈旧缓存 + 新 JVM = 崩溃。
+
+**修复**：
+```powershell
+./gradlew --stop
+Remove-Item -Recurse -Force ".gradle/configuration-cache"
+$env:JAVA_HOME = "C:\Program Files\jdk-<正确版本>"
+./gradlew build
+```
+
+### `UnsupportedClassVersionError: LanguageBraceMatching`（class file version 69）
+**原因**：Grammar-kit 任务使用的 JDK 版本过低。平台 262 需要 JDK 25。
+
+**修复**：
+```powershell
+$env:JAVA_HOME = "C:\Program Files\jdk-25.0.2"
+./gradlew --stop
+./gradlew build
+```
+
+### Daemon 持续使用错误的 JVM
+切换 JAVA_HOME 前务必先运行 `./gradlew --stop`，再启动新进程。
+
+## 插件解析问题
+
+### `Could not find com.jetbrains.plugins:org.jetbrains.plugins.go:X.X.X`
+**原因**：插件版本号错误。Branch 262 使用 `262.8665.XXX` 格式，而非 `22158.XXX`。
+
+**修复**：在 https://github.com/JetBrains/educational-plugin/blob/master/gradle-262.properties 查询正确版本
+
+### Gradle 提示 IntelliJ Platform Plugin 过时
+```
+IntelliJ Platform Gradle Plugin is outdated: 2.16.0. Update to: 2.18.1
+```
+**修复**：更新 `gradle/libs.versions.toml` 中的 `intelliJPlatform` 版本
+
+## 完整重置构建命令
+
+```powershell
+# 完整清理构建
+./gradlew --stop
+Remove-Item -Recurse -Force ".gradle/configuration-cache" -ErrorAction SilentlyContinue
+$env:JAVA_HOME = "C:\Program Files\jdk-25.0.2"
+./gradlew clean build
+```
+
+## 环境变量（PowerShell）
+
+| 变量 | 值 | 用途 |
+|------|-----|------|
+| JAVA_HOME | `C:\Program Files\jdk-25.0.2` | 使用 JDK 25 构建（平台 262+） |
+| JAVA_HOME | `C:\Program Files\jdk-21.0.11` | 使用 JDK 21 构建（平台 261） |

@@ -34,9 +34,9 @@ repositories {
 }
 
 dependencies {
-    implementation("org.commonmark:commonmark:0.22.0")
-    implementation("org.commonmark:commonmark-ext-gfm-tables:0.22.0")
-    implementation("org.commonmark:commonmark-ext-autolink:0.22.0")
+    implementation("org.commonmark:commonmark:0.28.0")
+    implementation("org.commonmark:commonmark-ext-gfm-tables:0.28.0")
+    implementation("org.commonmark:commonmark-ext-autolink:0.28.0")
     implementation("com.bybutter.sisyphus:sisyphus-grpc:2.1.22")
     implementation("com.bybutter.sisyphus:sisyphus-jackson-protobuf:2.1.22")
     implementation("io.grpc:grpc-netty:1.65.0")
@@ -59,7 +59,7 @@ dependencies {
 
 // Set the JVM language level used to build the project.
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
     compilerOptions {
         freeCompilerArgs.add("-Xjvm-default=all")
     }
@@ -160,7 +160,7 @@ tasks {
         pathToPsiRoot = "io/kanro/idea/plugin/protobuf/lang/psi/proto"
     }
 
-    create<GenerateParserTask>("generateTextParser") {
+    register<GenerateParserTask>("generateTextParser") {
         sourceFile = layout.projectDirectory.file("src/main/grammar/prototext.bnf")
         targetRootOutputDir = layout.buildDirectory.dir("generated/sources/grammar")
         purgeOldFiles = true
@@ -168,7 +168,7 @@ tasks {
         pathToPsiRoot = "io/kanro/idea/plugin/protobuf/lang/psi/text"
     }
 
-    create<GenerateLexerTask>("generateTextLexer") {
+    register<GenerateLexerTask>("generateTextLexer") {
         sourceFile = layout.projectDirectory.file("src/main/grammar/prototext.flex")
         targetOutputDir =
             layout.buildDirectory.dir("generated/sources/grammar/io/kanro/idea/plugin/protobuf/lang/lexer/text")

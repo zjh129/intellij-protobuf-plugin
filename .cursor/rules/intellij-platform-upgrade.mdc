@@ -1,0 +1,69 @@
+---
+description: IntelliJ 平台版本升级检查清单
+alwaysApply: false
+---
+
+# IntelliJ 平台版本升级检查清单
+
+升级 IntelliJ Platform 版本时（如 2026.1 → 2026.2），必须同步更新以下所有文件，遗漏任何一项都会导致构建失败。
+
+## 需要修改的文件
+
+### 1. `gradle.properties`
+```properties
+pluginSinceBuild = <branch_number>    # 例如 262 对应 2026.2
+pluginUntilBuild = <next_branch>.*     # 例如升级到 262 则写 263.*
+platformVersion = <version>            # 例如 2026.2
+platformPlugins = <plugins_with_new_versions>  # 关键！见下方说明
+```
+
+### 2. `gradle/libs.versions.toml`
+```toml
+intelliJPlatform = <new_version>  # 可通过 ./gradlew build 检查是否有更新
+```
+
+### 3. `build.gradle.kts`（若 JDK 版本变更）
+```kotlin
+kotlin {
+    jvmToolchain(<java_version>)  # 261 对应 21，262 对应 25
+}
+```
+
+## 插件版本查询
+
+**务必参考**: https://github.com/JetBrains/educational-plugin/blob/master/gradle-<branch>.properties
+
+branch 262 示例：
+```properties
+goPlugin=org.jetbrains.plugins.go:262.8665.176
+restClientPlugin=com.jetbrains.restClient:262.8665.176
+```
+
+## Branch 与 JDK 版本对应关系
+
+| 平台版本 | Branch | Kotlin Toolchain |
+|---------|--------|-----------------|
+| 2026.1  | 261    | jvmToolchain(21) |
+| 2026.2  | 262    | jvmToolchain(25) |
+| 2026.3  | 263    | jvmToolchain(?) |
+
+## 常见踩坑
+
+- **插件版本错误**：在 262 平台使用 261 的插件版本会导致 `Could not find` 错误
+- **JDK 版本错误**：平台 262 需要 JDK 25 运行 grammar-kit；用 JDK 21 会报 `UnsupportedClassVersionError`
+- **遗漏 `org.jetbrains.plugins.go`**：该插件使用 build-number 格式（如 `262.8665.176`），不是语义化版本
+- **遗漏 `com.jetbrains.restClient`**：gRPC 请求功能依赖此插件；移除后编译报错
+
+## 升级后操作
+
+```powershell
+# 停止所有 Gradle Daemon，确保加载新的 JVM/toolchain
+./gradlew --stop
+
+# 清除旧的配置缓存（如有）
+Remove-Item -Recurse -Force ".gradle/configuration-cache"
+
+# 使用正确的 JAVA_HOME 重新构建
+$env:JAVA_HOME = "C:\Program Files\jdk-<版本号>"
+./gradlew build
+```
