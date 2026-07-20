@@ -50,15 +50,20 @@ object GrpcRequestConverter : RequestConverter<GrpcRequest>() {
             val rpc =
                 element.requestTarget?.references?.filterIsInstance<GrpcMethodReference>()?.firstOrNull()
                     ?.resolve() as? ProtobufRpcDefinition
-                    ?: throw IllegalStateException("Unsolvable rpc method '$method'.")
+                    ?: throw IllegalStateException(
+                        "Unsolvable rpc method '$method'. " +
+                            "gRPC Reflection support is available — " +
+                            "ensure the server supports ServerReflection or add the .proto file.",
+                    )
+
             val input = rpc.input() ?: throw IllegalStateException("Invalid rpc input.")
             val inputMessage =
-                rpc.input()?.typeName?.resolve() as? ProtobufMessageDefinition
+                input.typeName?.resolve() as? ProtobufMessageDefinition
                     ?: throw IllegalStateException("Unsolvable rpc input '${input.typeName.text}'.")
             val output = rpc.output() ?: throw IllegalStateException("Invalid rpc input.")
             val outputMessage =
-                rpc.output()?.typeName?.resolve() as? ProtobufMessageDefinition
-                    ?: throw IllegalStateException("Unsolvable rpc input '${input.typeName.text}'.")
+                output.typeName?.resolve() as? ProtobufMessageDefinition
+                    ?: throw IllegalStateException("Unsolvable rpc output '${output.typeName.text}'.")
 
             GrpcRequest(
                 tls,

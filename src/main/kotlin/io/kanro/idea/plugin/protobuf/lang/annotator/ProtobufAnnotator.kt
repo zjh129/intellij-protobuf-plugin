@@ -129,7 +129,7 @@ class ProtobufAnnotator : Annotator {
                         holder.newAnnotation(
                             HighlightSeverity.ERROR,
                             "Symbol '${o.text}' not found",
-                        ).range(o.textRange).highlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+                        ).range(o.textRange).highlightType(ProblemHighlightType.ERROR)
                             .withFix(AddImportFix(o)).create()
                     }
                 }
@@ -155,7 +155,7 @@ class ProtobufAnnotator : Annotator {
                         holder.newAnnotation(
                             HighlightSeverity.ERROR,
                             "${if (isRoot) "Option" else "Field"} '${target.text}' not found",
-                        ).range(target.textRange).highlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL).create()
+                        ).range(target.textRange).highlightType(ProblemHighlightType.ERROR).create()
                     }
                 }
 
@@ -301,7 +301,7 @@ class ProtobufAnnotator : Annotator {
                     holder.newAnnotation(
                         HighlightSeverity.ERROR,
                         "Enum value '${o.text}' not found",
-                    ).range(o.textRange).highlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL).create()
+                    ).range(o.textRange).highlightType(ProblemHighlightType.ERROR).create()
                 }
 
                 override fun visitFieldName(o: ProtobufFieldName) {
@@ -309,7 +309,7 @@ class ProtobufAnnotator : Annotator {
                         holder.newAnnotation(
                             HighlightSeverity.ERROR,
                             "Field '${o.text}' not existed",
-                        ).range(o.textRange).highlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL).create()
+                        ).range(o.textRange).highlightType(ProblemHighlightType.ERROR).create()
                     }
                 }
 

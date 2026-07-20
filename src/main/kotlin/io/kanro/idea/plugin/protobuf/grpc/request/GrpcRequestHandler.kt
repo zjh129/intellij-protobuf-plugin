@@ -19,6 +19,7 @@ import io.grpc.Metadata
 import io.grpc.MethodDescriptor
 import io.grpc.Status
 import io.kanro.idea.plugin.protobuf.grpc.referece.GrpcMethodReference
+import io.kanro.idea.plugin.protobuf.grpc.reflection.GrpcReflectionService
 import io.kanro.idea.plugin.protobuf.lang.psi.proto.ProtobufRpcDefinition
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -34,6 +35,11 @@ object GrpcRequestHandler : RequestHandler<GrpcRequest> {
             httpRequest.requestTarget?.references?.filterIsInstance<GrpcMethodReference>()?.firstOrNull()
                 ?.resolve() as? ProtobufRpcDefinition ?: throw IllegalStateException()
         return ProtoFileReflection(method)
+    }
+
+    private fun extractHost(request: com.intellij.httpClient.http.request.psi.HttpRequest): String? {
+        val url = request.requestTarget?.text ?: return null
+        return url.removePrefix("http://").removePrefix("https://").substringBefore("/")
     }
 
     @OptIn(InternalProtoApi::class)

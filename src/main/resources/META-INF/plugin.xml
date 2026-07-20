@@ -20,6 +20,9 @@
     <depends optional="true" config-file="io.kanro.idea.plugin.protobuf-markdown.xml">
         org.intellij.plugins.markdown
     </depends>
+    <depends optional="true" config-file="io.kanro.idea.plugin.protobuf-buf.xml">
+        com.intellij.modules.platform
+    </depends>
 
     <extensionPoints>
         <extensionPoint
@@ -90,6 +93,9 @@
         <annotator
                 language="protobuf"
                 implementationClass="io.kanro.idea.plugin.protobuf.lang.annotator.Protobuf2Annotator"/>
+        <annotator
+                language="protobuf"
+                implementationClass="io.kanro.idea.plugin.protobuf.lang.annotator.ProtobufEditionAnnotator"/>
 
         <iconProvider implementation="io.kanro.idea.plugin.protobuf.lang.ui.ProtobufIconProvider"/>
         <lang.ast.factory implementationClass="io.kanro.idea.plugin.protobuf.lang.psi.proto.ProtobufASTFactory"

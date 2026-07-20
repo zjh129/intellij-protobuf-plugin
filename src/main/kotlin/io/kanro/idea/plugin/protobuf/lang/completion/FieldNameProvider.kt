@@ -13,8 +13,9 @@ import com.intellij.util.ProcessingContext
 import io.kanro.idea.plugin.protobuf.lang.psi.forEachPrev
 import io.kanro.idea.plugin.protobuf.lang.psi.proto.ProtobufExtensionStatement
 import io.kanro.idea.plugin.protobuf.lang.psi.proto.ProtobufFieldDefinition
-import io.kanro.idea.plugin.protobuf.lang.psi.proto.ProtobufReservedStatement
+import io.kanro.idea.plugin.protobuf.lang.psi.proto.ProtobufReservedRange
 import io.kanro.idea.plugin.protobuf.lang.psi.proto.range
+import io.kanro.idea.plugin.protobuf.lang.psi.proto.structure.ProtobufNumberScope
 import io.kanro.idea.plugin.protobuf.lang.support.BuiltInType
 import io.kanro.idea.plugin.protobuf.string.case.CommonWordSplitter
 import io.kanro.idea.plugin.protobuf.string.case.SnakeCaseFormatter
@@ -31,8 +32,10 @@ object FieldNameProvider : CompletionProvider<CompletionParameters>() {
         val field = element.parentOfType<ProtobufFieldDefinition>() ?: return
         val type = field.typeName.leaf()?.text ?: return
         val searchName = element.text.substringBeforeLast("_IntellijIdeaRulezzz", "")
-        val prevNumber = prevFieldNumber(element)
-        val inserter = fieldNumberInserter(prevNumber + 1)
+
+        // Compute the smallest available field number avoiding used numbers and reserved ranges
+        val nextNumber = nextAvailableFieldNumber(element)
+        val inserter = fieldNumberInserter(nextNumber)
 
         wellKnownTypeSuggestion(type).forEach {
             result.addAllElements(fieldNameSuggestion(searchName, it, field.fieldLabel?.text == "repeated", inserter))
@@ -66,20 +69,52 @@ object FieldNameProvider : CompletionProvider<CompletionParameters>() {
         return result
     }
 
-    private fun prevFieldNumber(context: PsiElement): Long {
+    /**
+     * Computes the smallest available field number, skipping numbers used by sibling fields
+     * and numbers covered by reserved ranges.
+     */
+    private fun nextAvailableFieldNumber(context: PsiElement): Long {
+        val usedNumbers = mutableSetOf<Long>()
+        val reservedRanges = mutableListOf<LongRange>()
+
         context.parentOfType<ProtobufFieldDefinition>()?.forEachPrev {
             when (it) {
-                is ProtobufFieldDefinition -> return it.number() ?: 0
-                is ProtobufReservedStatement -> return it.reservedRangeList.maxOf {
-                    it.range()?.last?.takeIf { it != Long.MAX_VALUE } ?: 0
-                }.takeIf { it != 0L } ?: return@forEachPrev
+                is ProtobufFieldDefinition -> {
+                    it.number()?.let { n -> usedNumbers.add(n) }
+                }
 
-                is ProtobufExtensionStatement -> return it.extensionRangeList.maxOf {
-                    it.range()?.last?.takeIf { it != Long.MAX_VALUE } ?: 0
-                }.takeIf { it != 0L } ?: return@forEachPrev
+                is ProtobufReservedRange -> {
+                    it.range()?.let { range -> reservedRanges.add(range) }
+                }
+
+                is ProtobufExtensionStatement -> {
+                    it.extensionRangeList.mapNotNull { ext -> ext.range() }.forEach { range ->
+                        reservedRanges.add(range)
+                    }
+                }
             }
         }
-        return 0
+
+        // Also collect reserved ranges from the scope (forward scan for later declarations)
+        val scope = context.parentOfType<ProtobufFieldDefinition>()?.parentOfType<ProtobufNumberScope>()
+        scope?.let { s ->
+            for (reserved in s.reservedRange()) {
+                reserved.range()?.let { range -> reservedRanges.add(range) }
+            }
+            for (extRange in s.extensionRange()) {
+                extRange.range()?.let { range -> reservedRanges.add(range) }
+            }
+        }
+
+        // Find the smallest positive number not in usedNumbers and not covered by any reserved range
+        var candidate = 1L
+        while (true) {
+            if (candidate !in usedNumbers && reservedRanges.none { it.contains(candidate) }) {
+                return candidate
+            }
+            candidate++
+            if (candidate > 536_870_911) return 1L // max valid field number
+        }
     }
 
     private fun fieldNumberInserter(number: Long): InsertHandler<LookupElement> {

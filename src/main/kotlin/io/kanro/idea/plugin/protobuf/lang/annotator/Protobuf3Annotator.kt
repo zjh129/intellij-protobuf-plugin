@@ -29,7 +29,8 @@ class Protobuf3Annotator : Annotator {
     ) {
         if (element.containingFile.originalFile !is ProtobufFile) return
         val file = (element as? ProtobufElement)?.file() ?: return
-        if (file.syntax() != "proto3") return
+        // Only activate for syntax = "proto3" (edition files are handled by ProtobufEditionAnnotator)
+        if (file.syntax() != "proto3" || file.edition() != null) return
 
         element.accept(
             object : ProtobufVisitor() {

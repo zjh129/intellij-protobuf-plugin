@@ -1,0 +1,13 @@
+<idea-plugin>
+    <depends optional="true">com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="io.kanro.idea.plugin.protobuf">
+        <!-- buf integration settings -->
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <externalAnnotator
+                language="protobuf"
+                implementationClass="io.kanro.idea.plugin.protobuf.buf.BufAnnotator"/>
+    </extensions>
+</idea-plugin>

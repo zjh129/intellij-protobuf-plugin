@@ -1,6 +1,7 @@
 package io.kanro.idea.plugin.protobuf.grpc.request
 
 import com.intellij.httpClient.execution.common.CommonClientRequest
+import com.bybutter.sisyphus.protobuf.LocalProtoReflection
 import io.grpc.Metadata
 
 @Suppress("UnstableApiUsage")
@@ -14,6 +15,8 @@ data class GrpcRequest(
     val outputStreaming: Boolean,
     val outputType: String,
     val requests: List<String>,
+    /** Optional proto reflection for dynamically discovered services (gRPC Reflection). */
+    val reflection: LocalProtoReflection? = null,
 ) : CommonClientRequest {
     override val httpMethod: String
         get() = GrpcRequestExecutionSupport.GRPC
