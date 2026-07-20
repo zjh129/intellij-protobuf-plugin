@@ -116,16 +116,16 @@ brainstorm → implement → ship → reflect
 
 详见 [`.github/copilot-instructions.md`](.github/copilot-instructions.md) 和 [`.github/skills/`](.github/skills/)。
 
-## 文档
+## 📖 文档 / Documentation
 
-|  |  |
-|---|---|
-| **[概览](docs/overview-zh.md)** | 插件功能介绍 |
-| **[架构](docs/architecture-zh.md)** | 各模块如何协作 |
-| **[快速开始](docs/getting-started-zh.md)** | 构建、运行和测试 |
-| **[贡献指南](docs/contributing-zh.md)** | 代码风格和功能开发 |
-| **[设计文档](docs/design/)** | 子系统设计决策详解 |
-| **[扩展点](docs/extension-points-zh.md)** | 插件扩展 API |
+|  |  |  |
+|---|---|---|
+| **[Overview](docs/overview.md)** / [概览](docs/overview-zh.md) | What the plugin does and why | 插件功能介绍 |
+| **[Architecture](docs/architecture.md)** / [架构](docs/architecture-zh.md) | How the pieces fit together | 各模块如何协作 |
+| **[Getting Started](docs/getting-started.md)** / [快速开始](docs/getting-started-zh.md) | Build, run, and test | 构建、运行和测试 |
+| **[Contributing](docs/contributing.md)** / [贡献指南](docs/contributing-zh.md) | Code style and how to add features | 代码风格和功能开发 |
+| **[Design Docs](docs/design/)** | Deep-dive into subsystem design decisions | 子系统设计决策详解 |
+| **[Extension Points](docs/extension-points.md)** / [扩展点](docs/extension-points-zh.md) | API for extending the plugin | 插件扩展 API |
 
 ## 致谢
 

@@ -1,0 +1,66 @@
+---
+description: 内部编译器和 Editions 支持
+globs: src/main/kotlin/**/compile/**/*.kt, src/main/kotlin/**/lang/**/*.kt
+alwaysApply: false
+---
+
+# 内部编译器与 Editions 支持
+
+## 内部编译器系统
+
+插件内置进程内 protobuf 编译器，从 PSI 生成 `FileDescriptorProto`，无需外部 `protoc`（详见 `docs/design/compiler-system-zh.md`）。
+
+**为什么内置编译器：**
+- 零配置，安装即用
+- 直接读取已解析的 PSI 树，避免双重解析
+- 对语法错误优雅降级，部分损坏的文件不影响其他部分编译
+
+**编译插件（`ProtobufCompilerPlugin` 实现）：**
+
+| 编译器 | 编译目标 | 关键逻辑 |
+|--------|---------|---------|
+| `FileCompiler` | 文件 → `FileDescriptorProto` | 包、语法、依赖提取 |
+| `MessageCompiler` | 消息 → `DescriptorProto` | 递归嵌套、嵌套类型路由 |
+| `MessageFieldCompiler` | 字段 → `FieldDescriptorProto` | 类型解析、标签推断 |
+| `MessageMapEntryCompiler` | Map 字段 → 合成 `Entry` | 生成隐藏的 key/value 消息 |
+| `EnumCompiler` | 枚举 → `EnumDescriptorProto` | 名称和值提取 |
+| `ServiceCompiler` | 服务 → `ServiceDescriptorProto` | RPC 方法路由 |
+| `ServiceMethodCompiler` | RPC 方法 → `MethodDescriptorProto` | 输入/输出类型、流标志 |
+
+**状态机模型**：编译状态（`FileCompilingState`、`MessageCompilingState` 等）携带 `target()`（待填充的 descriptor）和 `element()`（源 PSI 元素）。
+
+**主要消费者**：`ProtoFileReflection` 调用 `Protoc.compileFiles()` 获取 descriptor，通过 sisyphus 库的 `DynamicFileSupport` 注册，用于 gRPC 请求的 marshal/unmarshal。
+
+## Protobuf Editions 支持
+
+Editions 用 `edition = "2023"` 取代了 `syntax = "proto2/proto3"`，支持特性粒度控制（详见 `docs/design/editions-zh.md`）。
+
+**特性集模型**：
+
+```kotlin
+data class ProtobufFeature(
+    val enumType: ProtobufEnumType,               // OPEN | CLOSED
+    val fieldPresence: ProtobufFieldPresence,     // LEGACY_REQUIRED | EXPLICIT | IMPLICIT
+    val jsonFormat: ProtobufJsonFormat,           // ALLOW | LEGACY_BEST_EFFORT
+    val messageEncoding: ProtobufMessageEncoding,  // LENGTH_PREFIXED | DELIMITED
+    val repeatedFieldEncoding: ProtobufRepeatedFieldEncoding, // PACKED | EXPANDED
+    val utf8Validation: ProtobufUtf8Validation,   // VERIFY | NONE
+)
+```
+
+**三个版本作为特性集实例：**
+
+| 版本 | 枚举类型 | 字段存在性 | JSON | Repeated | UTF-8 |
+|------|---------|-----------|------|---------|-------|
+| PROTO2 | CLOSED | EXPLICIT | LEGACY_BEST_EFFORT | EXPANDED | 无 |
+| PROTO3 | OPEN | IMPLICIT | ALLOW | PACKED | VERIFY |
+| EDITION_2023 | OPEN | EXPLICIT | ALLOW | PACKED | VERIFY |
+
+**当前实现状态**（`docs/design/editions-zh.md`）：
+- ✅ 语法解析（`EditionStatement`）
+- ✅ PSI 模型（`file.edition()` API）
+- ✅ 特性集定义（`PROTO2`、`PROTO3`、`EDITION_2023`）
+- ⚠️ `ProtobufEditionAnnotator` — 类存在但返回 early，未在 plugin.xml 注册
+- ❌ 特性驱动验证 — 仍使用基于语法的注解器
+
+**迁移路径**：将 `if (syntax == "proto3")` 检查替换为 `if (features.enumType == OPEN)` 检查。

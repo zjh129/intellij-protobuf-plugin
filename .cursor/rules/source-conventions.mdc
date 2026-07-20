@@ -86,4 +86,6 @@ io.kanro.idea.plugin.protobuf/
 
 ## 参考文档
 
-详见中文文档 `docs/design/psi-and-mixin-zh.md`（PSI 与 Mixin 设计）、`docs/design/stub-indexing-zh.md`（Stub 索引设计）、`docs/design/symbol-resolution-zh.md`（符号解析设计）。
+详见中文文档 `docs/design/psi-and-mixin-zh.md`（PSI 与 Mixin 设计）、`docs/design/stub-indexing-zh.md`（Stub 索引设计）、`docs/design/symbol-resolution-zh.md`（符号解析设计）、`.cursor/rules/compiler-and-editions.mdc`（编译器与 Editions 设计）。
+
+扩展点开发详见 `.cursor/rules/extension-points.mdc`。

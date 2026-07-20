@@ -116,16 +116,16 @@ Every non-trivial change goes through a **brainstorm** (design discussion with a
 
 See [`.github/copilot-instructions.md`](.github/copilot-instructions.md) for the workflow and [`.github/skills/`](.github/skills/) for the skill definitions.
 
-## 📖 Documentation
+## 📖 Documentation / 文档
 
-| | |
-|---|---|
-| **[Overview](docs/overview.md)** | What the plugin does and why |
-| **[Architecture](docs/architecture.md)** | How the pieces fit together |
-| **[Getting Started](docs/getting-started.md)** | Build, run, and test |
-| **[Contributing](docs/contributing.md)** | Code style and how to add features |
-| **[Design Docs](docs/design/)** | Deep-dive into subsystem design decisions |
-| **[Extension Points](docs/extension-points.md)** | API for extending the plugin |
+| | | |
+|---|---|---|
+| **[Overview](docs/overview.md)** / [概览](docs/overview-zh.md) | What the plugin does and why | 插件功能介绍 |
+| **[Architecture](docs/architecture.md)** / [架构](docs/architecture-zh.md) | How the pieces fit together | 各模块如何协作 |
+| **[Getting Started](docs/getting-started.md)** / [快速开始](docs/getting-started-zh.md) | Build, run, and test | 构建、运行和测试 |
+| **[Contributing](docs/contributing.md)** / [贡献指南](docs/contributing-zh.md) | Code style and how to add features | 代码风格和功能开发 |
+| **[Design Docs](docs/design/)** | Deep-dive into subsystem design decisions | 子系统设计决策详解 |
+| **[Extension Points](docs/extension-points.md)** / [扩展点](docs/extension-points-zh.md) | API for extending the plugin | 插件扩展 API |
 
 ## 🙏 Acknowledgments
 
