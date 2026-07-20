@@ -1,0 +1,68 @@
+---
+description: 文档编写规范
+globs: docs/**/*.md, docs/**/*.mdc
+alwaysApply: false
+---
+
+# 文档编写规范
+
+## 文件命名
+
+中文文档使用与英文文档相同的名称，后缀 `-zh`：
+- `README_zh.md`
+- `docs/overview-zh.md`
+- `docs/architecture-zh.md`
+- `docs/design/psi-and-mixin-zh.md`
+- `docs/modules/java-zh.md`
+- 等等
+
+## 文档结构要求
+
+每个模块文档（`docs/modules/`）必须包含：
+
+```
+# 模块名称（中文）
+
+**包**：`io.kanro.idea.plugin.protobuf.xxx`
+**配置**：`META-INF/io.kanro.idea.plugin.protobuf-xxx.xml`
+**依赖**：`xxx.plugin.id`（可选）
+
+## 概述
+## 功能
+### 子功能...
+## 关键文件
+| 文件 | 用途 |
+|------|------|
+```
+
+## 链接规则
+
+中文文档内的链接应使用中文版本文件名：
+
+```markdown
+[概览](overview-zh.md)
+[架构](architecture-zh.md)
+[设计文档](design/)
+```
+
+README 链接中文版文档：
+
+```markdown
+[概览](docs/overview-zh.md)
+[架构](docs/architecture-zh.md)
+```
+
+## 设计文档写作规范
+
+设计文档（`docs/design/`）需要深入解释*为什么*，而非仅仅描述*是什么*。
+
+每篇设计文档结构：
+1. **问题背景**（## The Problem）—— 为什么这个子系统存在
+2. **设计决策**（## Design Decisions）—— 每个决策及理由
+3. **整体协作**（## How It Fits Together）—— 各部分如何组合
+4. **核心洞察**（## Key Insight）—— 设计的主要教训
+
+中文翻译要点：
+- 保留技术术语（PSI、Stub、Mixin、BNF、FLEX 等）
+- 使用中文解释"为什么"，保留英文描述具体机制
+- 图表保持原文，添加中文说明

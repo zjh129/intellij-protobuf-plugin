@@ -61,3 +61,7 @@ org.gradle.caching      # 启用构建缓存
 2. 参考 `intellij-platform-upgrade.mdc` 中的检查清单同步更新所有相关配置
 3. 执行 `./gradlew --stop` 后重新构建
 4. 确认以下任务全部通过：`generateLexer`、`generateParser`、`compileKotlin`、`build`
+
+## 参考文档
+
+详见中文文档 `docs/getting-started-zh.md`（快速开始）和 `docs/architecture-zh.md`（架构概览）。

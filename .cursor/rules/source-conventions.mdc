@@ -83,3 +83,7 @@ io.kanro.idea.plugin.protobuf/
 生成文件输出到 `build/generated/sources/grammar/`。
 
 `compileKotlin` 任务依赖全部四个语法生成任务。
+
+## 参考文档
+
+详见中文文档 `docs/design/psi-and-mixin-zh.md`（PSI 与 Mixin 设计）、`docs/design/stub-indexing-zh.md`（Stub 索引设计）、`docs/design/symbol-resolution-zh.md`（符号解析设计）。
