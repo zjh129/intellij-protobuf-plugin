@@ -32,6 +32,43 @@
 2. 搜索 **"Protobuf"**（作者：kanro）
 3. 安装并重启 IDE
 
+## 构建插件
+
+### 环境要求
+
+- **JDK 25**（用于编译和运行 grammarkit 生成的解析器）
+- **Gradle 9.0.0**（通过 `gradlew` 自动下载）
+
+### 编译命令
+
+使用 JDK 25 设置 `JAVA_HOME` 并运行 Gradle：
+
+```bash
+# Windows (PowerShell)
+$env:JAVA_HOME = "C:\Program Files\jdk-25.0.2"
+$env:PATH = "C:\Program Files\jdk-25.0.2\bin;$env:PATH"
+./gradlew build
+
+# Linux / macOS
+export JAVA_HOME="/path/to/jdk-25"
+./gradlew build
+```
+
+### 常用 Gradle 任务
+
+| 任务 | 说明 |
+|------|------|
+| `./gradlew build` | 构建插件（编译、测试、生成资源） |
+| `./gradlew runIde` | 在开发 IDE 中运行插件 |
+| `./gradlew test` | 运行单元测试 |
+| `./gradlew test --tests "*ClassName*"` | 运行指定测试类 |
+| `./gradlew clean` | 清理构建产物 |
+
+### 输出位置
+
+构建完成后，插件 JAR 包位于：
+- `build/libs/idea-protobuf-plugin-*.jar`
+
 ## 功能概览
 
 ### Schema 智能理解

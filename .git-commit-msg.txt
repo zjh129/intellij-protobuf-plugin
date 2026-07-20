@@ -1,0 +1,35 @@
+feat: 实现5个优先功能增强
+
+## 1. Editions 特性驱动验证
+- 重写 ProtobufEditionAnnotator，接入 ProtobufFeature 模型
+- 基于枚举类型、字段存在性等特性标志驱动验证规则
+- 替代旧的语法字符串匹配方式
+- edition 文件跳过 Protobuf3Annotator，由 ProtobufEditionAnnotator 单独处理
+- plugin.xml 注册 ProtobufEditionAnnotator
+
+## 2. 引用解析视觉增强
+- 将 4 处 ProblemHighlightType.LIKE_UNKNOWN_SYMBOL 改为 ERROR
+- 未解析的类型名、选项名、枚举值、字段名现在显示为红色错误而非灰色警告
+- 提升错误可见性，便于开发者快速定位问题
+
+## 3. 字段编号智能推荐
+- 重写 FieldNameProvider.nextAvailableFieldNumber()
+- 收集同袍字段编号 + reserved 范围 + extension 范围
+- 计算最小可用编号（避免与 reserved 冲突）
+- 支持向后和向前双向扫描 reserved 声明
+
+## 4. Buf CLI 集成
+- 新建 buf 模块（可选依赖）
+- BufAnnotator: ExternalAnnotator，运行 buf lint --error-format=json
+- BufSettings: 配置 buf 可执行路径和启用开关
+- buf.yaml 自动发现，输出解析为 IDE 警告注解
+- io.kanro.idea.plugin.protobuf-buf.xml 模块配置
+
+## 5. gRPC Reflection 动态发现基础设施
+- 新建 grpc/reflection 模块
+- GrpcReflectionService: 手动实现 ServerReflection 协议（wire-level protobuf）
+  - listServices() 获取所有服务名
+  - resolveFileDescriptor() 获取文件描述符字节
+  - buildDescriptors() 构建 FileDescriptor 列表
+  - supportsReflection() 健康检查
+- GrpcRequest 添加 reflection 字段预留扩展点
