@@ -1,6 +1,7 @@
 package io.kanro.idea.plugin.protobuf.buf
 
 import com.intellij.openapi.components.BaseState
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.SimplePersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
@@ -11,6 +12,7 @@ import com.intellij.util.xmlb.annotations.Attribute
     name = "BufSettings",
     storages = [Storage("buf.xml")],
 )
+@Service(Service.Level.PROJECT)
 class BufSettings : SimplePersistentStateComponent<BufSettings.State>(State()), ModificationTracker {
     override fun getModificationCount(): Long = stateModificationCount
 
@@ -23,9 +25,8 @@ class BufSettings : SimplePersistentStateComponent<BufSettings.State>(State()), 
     }
 
     companion object {
-        fun getInstance(): BufSettings {
-            return com.intellij.openapi.project.ProjectManager.getInstance().defaultProject
-                .getService(BufSettings::class.java)
+        fun getInstance(project: com.intellij.openapi.project.Project): BufSettings {
+            return project.getService(BufSettings::class.java)
         }
     }
 }

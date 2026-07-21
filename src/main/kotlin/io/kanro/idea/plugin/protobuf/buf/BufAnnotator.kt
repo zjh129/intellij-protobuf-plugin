@@ -10,12 +10,12 @@ class BufAnnotator : ExternalAnnotator<PsiFile, BufAnnotator.BufLintResult?>() {
 
     override fun collectInformation(file: PsiFile): PsiFile? {
         if (file.fileType !is ProtobufFileType) return null
-        if (!BufSettings.getInstance().state.enabled) return null
+        if (!BufSettings.getInstance(file.project).state.enabled) return null
         return file
     }
 
     override fun doAnnotate(protoFile: PsiFile): BufLintResult? {
-        val settings = BufSettings.getInstance()
+        val settings = BufSettings.getInstance(protoFile.project)
         if (!settings.state.enabled) return null
 
         val bufPath = (settings.state.bufPath ?: "buf").ifBlank { "buf" }
